@@ -1,0 +1,9 @@
+[package]
+name = "minifySeq"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-std = "1.13.1"
+clap = { version = "4.5.42", features = ["derive"] }
+tokio = { version = "1.47.1", features = ["full"] }
