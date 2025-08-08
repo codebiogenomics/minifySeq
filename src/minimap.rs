@@ -26,7 +26,7 @@ pub fn readfasta(pathfile: &str) -> Result<Vec<FASTA>, Box<dyn Error>> {
     for i in fileread.lines() {
         let line = i.expect("line not present");
         if line.starts_with(">") {
-            id.push(line);
+            id.push(line.replace(">", ""));
         } else if !line.starts_with("#") {
             sequence.push(line);
         }
