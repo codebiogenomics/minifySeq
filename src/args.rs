@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 #[derive(Debug, Parser)]
 #[command(
-    name = "expresscount",
+    name = "minifySeq",
     version = "1.0",
     about = "RUST-CLEAN.
        ************************************************
