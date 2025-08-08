@@ -3,6 +3,8 @@
 ![](https://github.com/IBCHgenomic/eVaiutilities/blob/main/logo.png)
 
 - rust ergonomic handler for long reads both PacBio and ONT reads.
+- faster than Nextflow and a single handler for everything related to long reads.
+- CLEAN cannot be used to remove unexpected contaminants.
 
 ```
 RUST-CLEAN.
