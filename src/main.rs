@@ -1,7 +1,6 @@
 mod args;
 use crate::args::CommandParse;
 use crate::args::Commands;
-use async_std::task::block_on;
 use clap::Parser;
 mod minimap;
 use async_std::task;

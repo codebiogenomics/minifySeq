@@ -1,14 +1,12 @@
 use crate::minimap::FASTA;
 use crate::minimap::readfasta;
 use crate::ontstruct::Clean;
-use crate::ontstruct::Ont;
-use async_std::task::block_on;
+use async_std::task;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 use std::process::Command;
-use tokio::task;
 
 /*
  Author Gaurav Sablok
@@ -98,6 +96,39 @@ pub async fn mapper(pathfile: &str, pathnos: &str) -> Result<String, Box<dyn Err
             })
         }
     }
+
+    // stats for the merged count
+
+    let mut count: usize = 0usize;
+    let mut countgap: usize = 0usize;
+    for i in ontsearch.iter() {
+        let basecount = i.1.split("\t").collect::<Vec<_>>()[9]
+            .parse::<usize>()
+            .unwrap();
+        count += basecount;
+        let countg = i.1.split("\t").collect::<Vec<_>>()[10]
+            .parse::<usize>()
+            .unwrap();
+        countgap += countg;
+    }
+
+    let mut veccount: Vec<_> = Vec::new();
+    let mut vecseq: Vec<usize> = Vec::new();
+    for i in ontsearch.iter() {
+        veccount.push(i.0.clone());
+        vecseq.push(i.1.len());
+    }
+    let writesec = vecseq.iter().fold(0, |acc, x| acc + x);
+    let mut statfile = File::create("statfile.txt").expect("file not present");
+    writeln!(statfile, "{}", "The stats for the given file are:").expect("file not present");
+    writeln!(
+        statfile,
+        "Number of sequences:{}\tTotal bases:{}\tNumber of matching bases:{}\tNumber of bases including gaps:{}",
+        veccount.len(),
+        writesec.to_string(),
+        count,
+        countgap
+    ).expect("file not written");
 
     Ok("Mapping has been finished".to_string())
 }
