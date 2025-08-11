@@ -2,11 +2,13 @@ use crate::minimap::FASTA;
 use crate::minimap::readfasta;
 use crate::ontstruct::Clean;
 use crate::ontstruct::Ont;
+use async_std::task::block_on;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 use std::process::Command;
+use tokio::task;
 
 /*
  Author Gaurav Sablok
@@ -17,7 +19,8 @@ use std::process::Command;
 */
 
 pub async fn mapper(pathfile: &str, pathnos: &str) -> Result<String, Box<dyn Error>> {
-    let mapfasta = readfasta(pathfile).unwrap();
+    // added async here
+    let mapfasta = task::block_on(readfasta(pathfile)).unwrap();
     let mut filewrite = File::create("mapfasta.fasta").expect("file not present");
     for i in mapfasta.iter() {
         writeln!(filewrite, ">{}\t{}", i.id, i.sequence).expect("file not present");

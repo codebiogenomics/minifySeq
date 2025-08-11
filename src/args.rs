@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 #[command(
     name = "minifySeq",
     version = "1.0",
-    about = "RUST-CLEAN.
+    about = "minifySeq.
        ************************************************
       Gaurav Sablok, IBCH, PAN, Poznan, Poland,
       https://portal.ichb.pl/laboratory-of-genomics/.

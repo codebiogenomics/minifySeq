@@ -17,7 +17,7 @@ pub struct FASTA {
     pub sequence: String,
 }
 
-pub fn readfasta(pathfile: &str) -> Result<Vec<FASTA>, Box<dyn Error>> {
+pub async fn readfasta(pathfile: &str) -> Result<Vec<FASTA>, Box<dyn Error>> {
     let fileopen = File::open(pathfile).expect("file not present");
     let fileread = BufReader::new(fileopen);
     let mut fastavec: Vec<FASTA> = Vec::new();
