@@ -1,5 +1,7 @@
+use crate::minimap::FASTA;
 use crate::minimap::readfasta;
-use crate::ontstruct::ONT;
+use crate::ontstruct::Clean;
+use crate::ontstruct::Ont;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fs::File;
@@ -20,8 +22,8 @@ pub async fn mapper(pathfile: &str, pathnos: &str) -> Result<String, Box<dyn Err
     for i in mapfasta.iter() {
         writeln!(filewrite, ">{}\t{}", i.id, i.sequence).expect("file not present");
     }
+    // mapping using the minimap algorithm
     let _ = Command::new("minimap")
-        .arg("-a")
         .arg(pathfile)
         .arg(pathnos)
         .arg(">")
@@ -35,7 +37,6 @@ pub async fn mapper(pathfile: &str, pathnos: &str) -> Result<String, Box<dyn Err
         idhashet.insert(i.id.clone());
     }
 
-    let samparse: Vec<ONT> = Vec::new();
     let samopen = File::open("mapped.sam").expect("file not present");
     let samread = BufReader::new(samopen);
     // making a iterative vector for the search
@@ -49,6 +50,49 @@ pub async fn mapper(pathfile: &str, pathnos: &str) -> Result<String, Box<dyn Err
                 linevec[1..linevec.len()].concat().to_string(),
             );
             ontsearch.push(vecinsert);
+        }
+    }
+
+    let mut cleanvec: Vec<Clean> = Vec::new();
+    let mut hashvecid = HashSet::new();
+    for i in ontsearch.iter() {
+        hashvecid.insert(i.0.clone());
+    }
+    // hashing the arrays in a hashset
+    for i in hashvecid.iter() {
+        let mut startvec: Vec<usize> = Vec::new();
+        let mut endvec: Vec<usize> = Vec::new();
+        for j in ontsearch.iter() {
+            if j.0.clone().to_string() == *i {
+                let splitvec: Vec<String> =
+                    j.1.split("\t").map(|x| x.to_string()).collect::<Vec<_>>();
+                startvec.push(splitvec[2].parse::<usize>().unwrap());
+                endvec.push(splitvec[3].parse::<usize>().unwrap());
+            }
+        }
+        cleanvec.push(Clean {
+            id: i.to_string(),
+            start: startvec,
+            end: endvec,
+        })
+    }
+
+    // iterative clipping
+    let mut vecstorage: Vec<FASTA> = Vec::new();
+    for i in mapfasta.iter() {
+        for j in 0..cleanvec.len() {
+            let mut vecsec = String::from("");
+            if i.id == cleanvec[j].id {
+                let vecseq = String::from(i.sequence.clone());
+                for seq in 0..cleanvec[j].start.len() {
+                    let newseq = &vecseq[cleanvec[j].start[seq]..cleanvec[j].end[seq]];
+                    vecsec.push_str(newseq);
+                }
+            }
+            vecstorage.push(FASTA {
+                id: i.id.clone(),
+                sequence: vecsec.to_string(),
+            })
         }
     }
 
